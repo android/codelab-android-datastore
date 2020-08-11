@@ -45,14 +45,17 @@ class TaskViewHolder(
         setTaskPriority(todo)
         binding.deadline.text = dateFormat.format(todo.deadline)
         // if a task was completed, show it grayed out
-        if (todo.completed) {
-            itemView.setBackgroundColor(
-                ContextCompat.getColor(
-                    itemView.context,
-                    R.color.greyAlpha
-                )
-            )
+        val color = if (todo.completed) {
+            R.color.greyAlpha
+        } else {
+            R.color.white
         }
+        itemView.setBackgroundColor(
+            ContextCompat.getColor(
+                itemView.context,
+                color
+            )
+        )
     }
 
     private fun setTaskPriority(todo: Task) {
