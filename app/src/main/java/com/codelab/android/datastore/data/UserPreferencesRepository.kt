@@ -76,6 +76,8 @@ class UserPreferencesRepository(context: Context) {
                 SortOrder.valueOf(
                     preferences[Keys.SORT_ORDER_KEY] ?: SortOrder.NONE.name
                 )
+
+            // Get our show completed value, defaulting to false if not set:
             val showCompleted = preferences[Keys.SHOW_COMPLETED_KEY] ?: false
             UserPreferences(showCompleted, sortOrder)
         }
@@ -86,10 +88,11 @@ class UserPreferencesRepository(context: Context) {
     suspend fun enableSortByDeadline(enable: Boolean) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
-        dataStore.edit { prefs ->
-            val currentOrder = prefs[Keys.SORT_ORDER_KEY]?.let { SortOrder.valueOf(it) }
+        dataStore.edit { preferences ->
+            val currentOrder =
+                preferences[Keys.SORT_ORDER_KEY]?.let { SortOrder.valueOf(it) }
 
-            val newSortOrder  =
+            val newSortOrder =
                 if (enable) {
                     if (currentOrder == SortOrder.BY_PRIORITY) {
                         SortOrder.BY_DEADLINE_AND_PRIORITY
@@ -104,7 +107,7 @@ class UserPreferencesRepository(context: Context) {
                     }
                 }
 
-            prefs[Keys.SORT_ORDER_KEY] = newSortOrder.name
+            preferences[Keys.SORT_ORDER_KEY] = newSortOrder.name
         }
     }
 
@@ -137,8 +140,8 @@ class UserPreferencesRepository(context: Context) {
     }
 
     suspend fun updateShowCompleted(showCompleted: Boolean) {
-        dataStore.edit { prefs ->
-            prefs[Keys.SHOW_COMPLETED_KEY] = showCompleted
+        dataStore.edit { preferences ->
+            preferences[Keys.SHOW_COMPLETED_KEY] = showCompleted
         }
     }
 }
