@@ -72,6 +72,7 @@ class TasksViewModel(
         }
         // sort the tasks
         return when (sortOrder) {
+            SortOrder.UNSPECIFIED -> filteredTasks // Treat unspecified order as NONE
             SortOrder.NONE -> filteredTasks
             SortOrder.BY_DEADLINE -> filteredTasks.sortedByDescending { it.deadline }
             SortOrder.BY_PRIORITY -> filteredTasks.sortedBy { it.priority }
