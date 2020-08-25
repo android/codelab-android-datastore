@@ -19,13 +19,19 @@ package com.codelab.android.datastore.data
 import android.content.Context
 import android.util.Log
 import androidx.datastore.DataStore
-import androidx.datastore.preferences.*
+import androidx.datastore.preferences.PreferenceDataStoreFactory
+import androidx.datastore.preferences.Preferences
+import androidx.datastore.preferences.SharedPreferencesMigration
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.File
 import java.io.IOException
 
 private const val USER_PREFERENCES_NAME = "user_preferences"
+private const val USER_PREFERENCES_STORE_FILE_NAME = "user.preferences_pb"
+private const val SORT_ORDER_KEY = "sort_order"
+private const val SHOW_COMPLETED_KEY = "show_completed"
 
 enum class SortOrder {
     NONE,
@@ -35,9 +41,23 @@ enum class SortOrder {
 }
 
 data class UserPreferences(
-    val showCompleted: Boolean = false,
+    val showCompleted: Boolean,
     val sortOrder: SortOrder
 )
+
+/**
+ * Extension function on Preferences to easily get the sort order
+ */
+private fun Preferences.getSortOrder(): SortOrder {
+    val order = getString(SORT_ORDER_KEY, SortOrder.NONE.name)
+    return SortOrder.valueOf(order)
+}
+
+/**
+ * Extension function on Preferences to easily set the sort order
+ */
+private fun Preferences.withSortOrder(newSortOrder: SortOrder) =
+    this.toBuilder().setString(SORT_ORDER_KEY, newSortOrder.name).build()
 
 /**
  * Class that handles saving and retrieving user preferences
@@ -47,15 +67,17 @@ class UserPreferencesRepository(context: Context) {
     private val TAG: String = "UserPreferencesRepo"
 
     private val dataStore: DataStore<Preferences> by lazy {
-        context.createDataStore(
-            name = USER_PREFERENCES_NAME,
-            migrations = listOf(SharedPreferencesMigration(context, USER_PREFERENCES_NAME))
+        PreferenceDataStoreFactory().create(
+            produceFile = {
+                File(
+                    context.applicationContext.filesDir,
+                    USER_PREFERENCES_STORE_FILE_NAME
+                )
+            },
+            // Since we're migrating from SharedPreferences, add a migration based on the
+            // SharedPreferences name
+            migrationProducers = listOf(SharedPreferencesMigration(context, USER_PREFERENCES_NAME))
         )
-    }
-
-    private object Keys {
-        internal val SORT_ORDER_KEY = preferencesKey<String>("sort_order")
-        internal val SHOW_COMPLETED_KEY = preferencesKey<Boolean>("show_completed")
     }
 
     /**
@@ -66,17 +88,14 @@ class UserPreferencesRepository(context: Context) {
             // dataStore.data throws an IOException when an error is encountered when reading data
             if (exception is IOException) {
                 Log.e(TAG, "Error reading preferences.", exception)
-                emit(emptyPreferences())
+                emit(Preferences.empty())
             } else {
                 throw exception
             }
         }.map { preferences ->
             // Get the sort order from preferences and convert it to a [SortOrder] object
-            val sortOrder =
-                SortOrder.valueOf(
-                    preferences[Keys.SORT_ORDER_KEY] ?: SortOrder.NONE.name
-                )
-            val showCompleted = preferences[Keys.SHOW_COMPLETED_KEY] ?: false
+            val sortOrder = preferences.getSortOrder()
+            val showCompleted = preferences.getBoolean(SHOW_COMPLETED_KEY, false)
             UserPreferences(showCompleted, sortOrder)
         }
 
@@ -86,10 +105,9 @@ class UserPreferencesRepository(context: Context) {
     suspend fun enableSortByDeadline(enable: Boolean) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
-        dataStore.edit { prefs ->
-            val currentOrder = prefs[Keys.SORT_ORDER_KEY]?.let { SortOrder.valueOf(it) }
-
-            val newSortOrder  =
+        dataStore.updateData { currentPreferences ->
+            val currentOrder = currentPreferences.getSortOrder()
+            val newSortOrder =
                 if (enable) {
                     if (currentOrder == SortOrder.BY_PRIORITY) {
                         SortOrder.BY_DEADLINE_AND_PRIORITY
@@ -103,8 +121,7 @@ class UserPreferencesRepository(context: Context) {
                         SortOrder.NONE
                     }
                 }
-
-            prefs[Keys.SORT_ORDER_KEY] = newSortOrder.name
+            currentPreferences.withSortOrder(newSortOrder)
         }
     }
 
@@ -114,9 +131,8 @@ class UserPreferencesRepository(context: Context) {
     suspend fun enableSortByPriority(enable: Boolean) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
-        dataStore.edit { prefs ->
-            val currentOrder = prefs[Keys.SORT_ORDER_KEY]?.let { SortOrder.valueOf(it) }
-
+        dataStore.updateData { currentPreferences ->
+            val currentOrder = currentPreferences.getSortOrder()
             val newSortOrder =
                 if (enable) {
                     if (currentOrder == SortOrder.BY_DEADLINE) {
@@ -131,14 +147,13 @@ class UserPreferencesRepository(context: Context) {
                         SortOrder.NONE
                     }
                 }
-
-            prefs[Keys.SORT_ORDER_KEY] = newSortOrder.name
+            currentPreferences.withSortOrder(newSortOrder)
         }
     }
 
     suspend fun updateShowCompleted(showCompleted: Boolean) {
-        dataStore.edit { prefs ->
-            prefs[Keys.SHOW_COMPLETED_KEY] = showCompleted
+        dataStore.updateData { currentPreferences ->
+            currentPreferences.toBuilder().setBoolean(SHOW_COMPLETED_KEY, showCompleted).build()
         }
     }
 }
