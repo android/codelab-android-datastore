@@ -68,6 +68,7 @@ class UserPreferencesRepository(context: Context) {
             // dataStore.data throws an IOException when an error is encountered when reading data
             if (exception is IOException) {
                 Log.e(TAG, "Error reading sort order preferences.", exception)
+                emit(UserPreferences.getDefaultInstance())
             } else {
                 throw exception
             }
