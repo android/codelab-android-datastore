@@ -35,7 +35,7 @@ enum class SortOrder {
 }
 
 data class UserPreferences(
-    val showCompleted: Boolean = false,
+    val showCompleted: Boolean,
     val sortOrder: SortOrder
 )
 
