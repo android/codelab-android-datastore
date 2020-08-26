@@ -19,18 +19,40 @@ package com.codelab.android.datastore.data
 import android.content.Context
 import android.util.Log
 import androidx.datastore.DataStore
-import androidx.datastore.createDataStore
+import androidx.datastore.DataStoreFactory
+import androidx.datastore.migrations.MigrationFromSharedPreferences
 import androidx.datastore.migrations.SharedPreferencesMigration
 import androidx.datastore.migrations.SharedPreferencesView
 import com.codelab.android.datastore.UserPreferences
 import com.codelab.android.datastore.UserPreferences.SortOrder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import java.io.File
 import java.io.IOException
 
 private const val USER_PREFERENCES_NAME = "user_preferences"
 private const val DATA_STORE_FILE_NAME = "user_prefs.pb"
 private const val SORT_ORDER_KEY = "sort_order"
+
+// Define the mapping from SharedPreferences to UserPreferences
+private class UserPreferencesMigration : MigrationFromSharedPreferences<UserPreferences> {
+    override suspend fun migrate(
+        prefs: SharedPreferencesView,
+        currentData: UserPreferences
+    ): UserPreferences {
+        return if (currentData.sortOrder == SortOrder.UNSPECIFIED) {
+            currentData.toBuilder()
+                .setSortOrder(
+                    SortOrder.valueOf(
+                        prefs.getString(SORT_ORDER_KEY, SortOrder.NONE.name) ?: SortOrder.NONE.name
+                    )
+                )
+                .build()
+        } else {
+            currentData
+        }
+    }
+}
 
 /**
  * Class that handles saving and retrieving user preferences
@@ -40,26 +62,15 @@ class UserPreferencesRepository(context: Context) {
     private val TAG: String = "UserPreferencesRepo"
 
     // Build the DataStore
-    private val userPreferencesStore: DataStore<UserPreferences> = context.createDataStore(
-        fileName = DATA_STORE_FILE_NAME,
+    private val userPreferencesStore: DataStore<UserPreferences> = DataStoreFactory().create(
+        produceFile = { File(context.filesDir, DATA_STORE_FILE_NAME) },
         serializer = UserPreferencesSerializer,
-        migrations = listOf(
+        migrationProducers = listOf(
             SharedPreferencesMigration(
                 context,
-                USER_PREFERENCES_NAME
-            ) { sharedPrefs: SharedPreferencesView, currentData: UserPreferences ->
-                // Define the mapping from SharedPreferences to UserPreferences
-                if (currentData.sortOrder == SortOrder.UNSPECIFIED) {
-                    currentData.toBuilder()
-                        .setSortOrder(
-                            SortOrder.valueOf(
-                                sharedPrefs.getString(SORT_ORDER_KEY, SortOrder.NONE.name)!!
-                            )
-                        ).build()
-                } else {
-                    currentData
-                }
-            }
+                USER_PREFERENCES_NAME,
+                UserPreferencesMigration()
+            )
         )
     )
 
