@@ -46,16 +46,16 @@ class UserPreferencesRepository(context: Context) {
 
     private val TAG: String = "UserPreferencesRepo"
 
-    private val dataStore: DataStore<Preferences> by lazy {
+    private val dataStore: DataStore<Preferences> =
         context.createDataStore(
             name = USER_PREFERENCES_NAME,
             migrations = listOf(SharedPreferencesMigration(context, USER_PREFERENCES_NAME))
         )
-    }
+
 
     private object Keys {
-        internal val SORT_ORDER = preferencesKey<String>("sort_order")
-        internal val SHOW_COMPLETED = preferencesKey<Boolean>("show_completed")
+        val SORT_ORDER = preferencesKey<String>("sort_order")
+        val SHOW_COMPLETED = preferencesKey<Boolean>("show_completed")
     }
 
     /**
