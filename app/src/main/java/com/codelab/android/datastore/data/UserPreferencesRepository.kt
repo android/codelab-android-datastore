@@ -54,8 +54,8 @@ class UserPreferencesRepository(context: Context) {
     }
 
     private object Keys {
-        internal val SORT_ORDER_KEY = preferencesKey<String>("sort_order")
-        internal val SHOW_COMPLETED_KEY = preferencesKey<Boolean>("show_completed")
+        internal val SORT_ORDER = preferencesKey<String>("sort_order")
+        internal val SHOW_COMPLETED = preferencesKey<Boolean>("show_completed")
     }
 
     /**
@@ -74,11 +74,11 @@ class UserPreferencesRepository(context: Context) {
             // Get the sort order from preferences and convert it to a [SortOrder] object
             val sortOrder =
                 SortOrder.valueOf(
-                    preferences[Keys.SORT_ORDER_KEY] ?: SortOrder.NONE.name
+                    preferences[Keys.SORT_ORDER] ?: SortOrder.NONE.name
                 )
 
             // Get our show completed value, defaulting to false if not set:
-            val showCompleted = preferences[Keys.SHOW_COMPLETED_KEY] ?: false
+            val showCompleted = preferences[Keys.SHOW_COMPLETED] ?: false
             UserPreferences(showCompleted, sortOrder)
         }
 
@@ -90,7 +90,7 @@ class UserPreferencesRepository(context: Context) {
         // time from another thread, we won't have conflicts
         dataStore.edit { preferences ->
             val currentOrder =
-                preferences[Keys.SORT_ORDER_KEY]?.let { SortOrder.valueOf(it) }
+                preferences[Keys.SORT_ORDER]?.let { SortOrder.valueOf(it) }
 
             val newSortOrder =
                 if (enable) {
@@ -107,7 +107,7 @@ class UserPreferencesRepository(context: Context) {
                     }
                 }
 
-            preferences[Keys.SORT_ORDER_KEY] = newSortOrder.name
+            preferences[Keys.SORT_ORDER] = newSortOrder.name
         }
     }
 
@@ -118,7 +118,7 @@ class UserPreferencesRepository(context: Context) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
         dataStore.edit { prefs ->
-            val currentOrder = prefs[Keys.SORT_ORDER_KEY]?.let { SortOrder.valueOf(it) }
+            val currentOrder = prefs[Keys.SORT_ORDER]?.let { SortOrder.valueOf(it) }
 
             val newSortOrder =
                 if (enable) {
@@ -135,13 +135,13 @@ class UserPreferencesRepository(context: Context) {
                     }
                 }
 
-            prefs[Keys.SORT_ORDER_KEY] = newSortOrder.name
+            prefs[Keys.SORT_ORDER] = newSortOrder.name
         }
     }
 
     suspend fun updateShowCompleted(showCompleted: Boolean) {
         dataStore.edit { preferences ->
-            preferences[Keys.SHOW_COMPLETED_KEY] = showCompleted
+            preferences[Keys.SHOW_COMPLETED] = showCompleted
         }
     }
 }
