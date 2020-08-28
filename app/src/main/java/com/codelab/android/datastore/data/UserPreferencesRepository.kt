@@ -89,8 +89,8 @@ class UserPreferencesRepository(context: Context) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
         dataStore.edit { preferences ->
-            val currentOrder =
-                preferences[Keys.SORT_ORDER]?.let { SortOrder.valueOf(it) }
+            val currentOrder = SortOrder.valueOf(
+                preferences[Keys.SORT_ORDER] ?: SortOrder.NONE.name)
 
             val newSortOrder =
                 if (enable) {
@@ -117,8 +117,9 @@ class UserPreferencesRepository(context: Context) {
     suspend fun enableSortByPriority(enable: Boolean) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
-        dataStore.edit { prefs ->
-            val currentOrder = prefs[Keys.SORT_ORDER]?.let { SortOrder.valueOf(it) }
+        dataStore.edit { preferences ->
+            val currentOrder = SortOrder.valueOf(
+                    preferences[Keys.SORT_ORDER] ?: SortOrder.NONE.name)
 
             val newSortOrder =
                 if (enable) {
@@ -135,7 +136,7 @@ class UserPreferencesRepository(context: Context) {
                     }
                 }
 
-            prefs[Keys.SORT_ORDER] = newSortOrder.name
+            preferences[Keys.SORT_ORDER] = newSortOrder.name
         }
     }
 
