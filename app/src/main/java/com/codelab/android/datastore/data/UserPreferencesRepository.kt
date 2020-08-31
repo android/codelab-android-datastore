@@ -39,28 +39,30 @@ class UserPreferencesRepository(context: Context) {
 
     private val TAG: String = "UserPreferencesRepo"
 
+    private val sharedPrefsMigration = SharedPreferencesMigration(
+        context,
+        USER_PREFERENCES_NAME
+    ) { sharedPrefs: SharedPreferencesView, currentData: UserPreferences ->
+        // Define the mapping from SharedPreferences to UserPreferences
+        if (currentData.sortOrder == SortOrder.UNSPECIFIED) {
+            currentData.toBuilder().setSortOrder(
+                SortOrder.valueOf(
+                    sharedPrefs.getString(
+                        SORT_ORDER_KEY, SortOrder.NONE.name
+                    )!!
+                )
+            ).build()
+        } else {
+            currentData
+        }
+    }
+
+
     // Build the DataStore
     private val userPreferencesStore: DataStore<UserPreferences> = context.createDataStore(
         fileName = DATA_STORE_FILE_NAME,
         serializer = UserPreferencesSerializer,
-        migrations = listOf(
-            SharedPreferencesMigration(
-                context,
-                USER_PREFERENCES_NAME
-            ) { sharedPrefs: SharedPreferencesView, currentData: UserPreferences ->
-                // Define the mapping from SharedPreferences to UserPreferences
-                if (currentData.sortOrder == SortOrder.UNSPECIFIED) {
-                    currentData.toBuilder()
-                        .setSortOrder(
-                            SortOrder.valueOf(
-                                sharedPrefs.getString(SORT_ORDER_KEY, SortOrder.NONE.name)!!
-                            )
-                        ).build()
-                } else {
-                    currentData
-                }
-            }
-        )
+        migrations = listOf(sharedPrefsMigration)
     )
 
     val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
