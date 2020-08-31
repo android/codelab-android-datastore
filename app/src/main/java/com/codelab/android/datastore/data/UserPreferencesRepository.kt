@@ -97,7 +97,8 @@ class UserPreferencesRepository(context: Context) {
         // time from another thread, we won't have conflicts
         dataStore.edit { preferences ->
             val currentOrder = SortOrder.valueOf(
-                preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name)
+                preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name
+            )
 
             val newSortOrder =
                 if (enable) {
@@ -126,7 +127,8 @@ class UserPreferencesRepository(context: Context) {
         // time from another thread, we won't have conflicts
         dataStore.edit { preferences ->
             val currentOrder = SortOrder.valueOf(
-                    preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name)
+                    preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name
+            )
 
             val newSortOrder =
                 if (enable) {
