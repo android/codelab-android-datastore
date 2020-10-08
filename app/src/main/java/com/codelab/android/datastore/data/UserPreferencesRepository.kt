@@ -34,7 +34,7 @@ enum class SortOrder {
 /**
  * Class that handles saving and retrieving user preferences
  */
-class UserPreferencesRepository(context: Context) {
+class UserPreferencesRepository private constructor(context: Context) {
 
     private val sharedPreferences =
         context.applicationContext.getSharedPreferences(USER_PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -95,6 +95,19 @@ class UserPreferencesRepository(context: Context) {
     private fun updateSortOrder(sortOrder: SortOrder) {
         sharedPreferences.edit {
             putString(SORT_ORDER_KEY, sortOrder.name)
+        }
+    }
+
+    companion object {
+        @Volatile
+        private var INSTANCE: UserPreferencesRepository? = null
+
+        fun getInstance(context: Context): UserPreferencesRepository {
+            return INSTANCE ?: synchronized(this) {
+                val instance = UserPreferencesRepository(context)
+                INSTANCE = instance
+                instance
+            }
         }
     }
 }

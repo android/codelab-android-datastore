@@ -41,14 +41,14 @@ class TasksActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(
             this,
-            TasksViewModelFactory(TasksRepository, UserPreferencesRepository(this))
+            TasksViewModelFactory(TasksRepository, UserPreferencesRepository.getInstance(this))
         ).get(TasksViewModel::class.java)
 
         setupRecyclerView()
         setupFilterListeners(viewModel)
         setupSort()
 
-        viewModel.tasksUiModel.observe(this) { tasksUiModel ->
+        viewModel.tasksUiModel.observe(owner = this) { tasksUiModel ->
             adapter.submitList(tasksUiModel.tasks)
             updateSort(tasksUiModel.sortOrder)
             binding.showCompletedSwitch.isChecked = tasksUiModel.showCompleted

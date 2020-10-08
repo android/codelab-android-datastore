@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@drawable/ic_baseline_filter_list_24"
-            android:tint="?attr/colorOnSecondary" />
+            app:tint="?attr/colorOnSecondary" />
 
         <TextView
             android:id="@+id/show_completed"
@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@drawable/ic_baseline_reorder_24"
-            android:tint="?attr/colorOnSurface" />
+            app:tint="?attr/colorOnSurface" />
 
         <com.google.android.material.chip.ChipGroup
             android:layout_width="match_parent"
