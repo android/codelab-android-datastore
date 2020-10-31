@@ -22,7 +22,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.0.1"
+        classpath "com.android.tools.build:gradle:4.1.0"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -43,7 +43,7 @@ ext {
     constraintLayoutVersion = '2.0.2'
     coreVersion = '1.3.2'
     coroutinesVersion = '1.3.9'
-    dataStoreVersion = '1.0.0-alpha01'
+    dataStoreVersion = '1.0.0-alpha02'
     materialVersion = '1.2.1'
     lifecycleVersion = '2.2.0'
 

@@ -69,9 +69,4 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
     implementation "androidx.datastore:datastore-preferences:$dataStoreVersion"
-
-    // testing
-    testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "androidx.test:runner:$runnerVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
 }
