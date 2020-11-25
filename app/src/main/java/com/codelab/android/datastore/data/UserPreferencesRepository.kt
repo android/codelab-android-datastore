@@ -104,6 +104,10 @@ class UserPreferencesRepository private constructor(context: Context) {
 
         fun getInstance(context: Context): UserPreferencesRepository {
             return INSTANCE ?: synchronized(this) {
+                INSTANCE?.let {
+                    return it
+                }
+
                 val instance = UserPreferencesRepository(context)
                 INSTANCE = instance
                 instance
