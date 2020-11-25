@@ -18,7 +18,7 @@ package com.codelab.android.datastore.data
 
 import android.content.Context
 import android.util.Log
-import androidx.datastore.DataStore
+import androidx.datastore.core.DataStore
 import androidx.datastore.createDataStore
 import androidx.datastore.migrations.SharedPreferencesMigration
 import androidx.datastore.migrations.SharedPreferencesView
