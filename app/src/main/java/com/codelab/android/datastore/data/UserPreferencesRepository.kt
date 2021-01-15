@@ -21,9 +21,10 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.preferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.createDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -61,8 +62,8 @@ class UserPreferencesRepository private constructor(context: Context) {
 
 
     private object PreferencesKeys {
-        val SORT_ORDER = preferencesKey<String>("sort_order")
-        val SHOW_COMPLETED = preferencesKey<Boolean>("show_completed")
+        val SORT_ORDER = stringPreferencesKey("sort_order")
+        val SHOW_COMPLETED = booleanPreferencesKey("show_completed")
     }
 
     /**
@@ -127,7 +128,7 @@ class UserPreferencesRepository private constructor(context: Context) {
         // time from another thread, we won't have conflicts
         dataStore.edit { preferences ->
             val currentOrder = SortOrder.valueOf(
-                    preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name
+                preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name
             )
 
             val newSortOrder =
