@@ -19,7 +19,7 @@ package com.codelab.android.datastore.data
 import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
-import androidx.datastore.createDataStore
+import androidx.datastore.dataStore
 import androidx.datastore.migrations.SharedPreferencesMigration
 import androidx.datastore.migrations.SharedPreferencesView
 import com.codelab.android.datastore.UserPreferences
@@ -35,7 +35,7 @@ private const val SORT_ORDER_KEY = "sort_order"
 /**
  * Class that handles saving and retrieving user preferences
  */
-class UserPreferencesRepository private constructor(context: Context) {
+class UserPreferencesRepository(private val context: Context) {
 
     private val TAG: String = "UserPreferencesRepo"
 
@@ -59,13 +59,13 @@ class UserPreferencesRepository private constructor(context: Context) {
 
 
     // Build the DataStore
-    private val userPreferencesStore: DataStore<UserPreferences> = context.createDataStore(
+    private val Context.userPreferencesStore: DataStore<UserPreferences> by dataStore(
         fileName = DATA_STORE_FILE_NAME,
         serializer = UserPreferencesSerializer,
         migrations = listOf(sharedPrefsMigration)
     )
 
-    val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
+    val userPreferencesFlow: Flow<UserPreferences> = context.userPreferencesStore.data
         .catch { exception ->
             // dataStore.data throws an IOException when an error is encountered when reading data
             if (exception is IOException) {
@@ -82,7 +82,7 @@ class UserPreferencesRepository private constructor(context: Context) {
     suspend fun enableSortByDeadline(enable: Boolean) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
-        userPreferencesStore.updateData { currentPreferences ->
+        context.userPreferencesStore.updateData { currentPreferences ->
             val currentOrder = currentPreferences.sortOrder
             val newSortOrder =
                 if (enable) {
@@ -108,7 +108,7 @@ class UserPreferencesRepository private constructor(context: Context) {
     suspend fun enableSortByPriority(enable: Boolean) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
-        userPreferencesStore.updateData { currentPreferences ->
+        context.userPreferencesStore.updateData { currentPreferences ->
             val currentOrder = currentPreferences.sortOrder
             val newSortOrder =
                 if (enable) {
@@ -129,21 +129,8 @@ class UserPreferencesRepository private constructor(context: Context) {
     }
 
     suspend fun updateShowCompleted(completed: Boolean) {
-        userPreferencesStore.updateData { currentPreferences ->
+        context.userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder().setShowCompleted(completed).build()
-        }
-    }
-
-    companion object {
-        @Volatile
-        private var INSTANCE: UserPreferencesRepository? = null
-
-        fun getInstance(context: Context): UserPreferencesRepository {
-            return INSTANCE ?: synchronized(this) {
-                val instance = UserPreferencesRepository(context)
-                INSTANCE = instance
-                instance
-            }
         }
     }
 }
