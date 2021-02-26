@@ -19,11 +19,11 @@ package com.codelab.android.datastore.ui
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.codelab.android.datastore.data.SortOrder
 import com.codelab.android.datastore.data.TasksRepository
 import com.codelab.android.datastore.data.UserPreferencesRepository
+import com.codelab.android.datastore.dataStore
 import com.codelab.android.datastore.databinding.ActivityTasksBinding
 
 class TasksActivity : AppCompatActivity() {
@@ -43,7 +43,7 @@ class TasksActivity : AppCompatActivity() {
             this,
             TasksViewModelFactory(
                 TasksRepository,
-                UserPreferencesRepository(this.applicationContext)
+                UserPreferencesRepository(this.dataStore)
             )
         ).get(TasksViewModel::class.java)
 
@@ -51,7 +51,7 @@ class TasksActivity : AppCompatActivity() {
         setupFilterListeners(viewModel)
         setupSort()
 
-        viewModel.tasksUiModel.observe(owner = this) { tasksUiModel ->
+        viewModel.tasksUiModel.observe(this) { tasksUiModel ->
             adapter.submitList(tasksUiModel.tasks)
             updateSort(tasksUiModel.sortOrder)
             binding.showCompletedSwitch.isChecked = tasksUiModel.showCompleted

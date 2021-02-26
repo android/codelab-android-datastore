@@ -16,22 +16,17 @@
 
 package com.codelab.android.datastore.data
 
-import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
-
-private const val USER_PREFERENCES_NAME = "user_preferences"
 
 enum class SortOrder {
     NONE,
@@ -48,17 +43,9 @@ data class UserPreferences(
 /**
  * Class that handles saving and retrieving user preferences
  */
-class UserPreferencesRepository (private val context: Context) {
+class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
 
     private val TAG: String = "UserPreferencesRepo"
-
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
-            name = USER_PREFERENCES_NAME,
-            // Since we're migrating from SharedPreferences, add a migration based on the
-            // SharedPreferences name
-            migrations = listOf(SharedPreferencesMigration(context, USER_PREFERENCES_NAME))
-        )
-
 
     private object PreferencesKeys {
         val SORT_ORDER = stringPreferencesKey("sort_order")
@@ -68,7 +55,7 @@ class UserPreferencesRepository (private val context: Context) {
     /**
      * Get the user preferences flow.
      */
-    val userPreferencesFlow: Flow<UserPreferences> = context.dataStore.data
+    val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
         .catch { exception ->
             // dataStore.data throws an IOException when an error is encountered when reading data
             if (exception is IOException) {
@@ -95,7 +82,7 @@ class UserPreferencesRepository (private val context: Context) {
     suspend fun enableSortByDeadline(enable: Boolean) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
-        context.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val currentOrder = SortOrder.valueOf(
                 preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name
             )
@@ -125,7 +112,7 @@ class UserPreferencesRepository (private val context: Context) {
     suspend fun enableSortByPriority(enable: Boolean) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
-        context.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val currentOrder = SortOrder.valueOf(
                 preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name
             )
@@ -150,7 +137,7 @@ class UserPreferencesRepository (private val context: Context) {
     }
 
     suspend fun updateShowCompleted(showCompleted: Boolean) {
-        context.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_COMPLETED] = showCompleted
         }
     }
