@@ -20,10 +20,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
+import com.codelab.android.datastore.TasksApplication
 import com.codelab.android.datastore.data.SortOrder
 import com.codelab.android.datastore.data.TasksRepository
 import com.codelab.android.datastore.data.UserPreferencesRepository
-import com.codelab.android.datastore.dataStore
 import com.codelab.android.datastore.databinding.ActivityTasksBinding
 
 class TasksActivity : AppCompatActivity() {
@@ -43,7 +43,7 @@ class TasksActivity : AppCompatActivity() {
             this,
             TasksViewModelFactory(
                 TasksRepository,
-                UserPreferencesRepository(this.dataStore)
+                UserPreferencesRepository((this.application as TasksApplication).dataStore)
             )
         ).get(TasksViewModel::class.java)
 

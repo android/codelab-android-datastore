@@ -17,21 +17,18 @@
 package com.codelab.android.datastore
 
 import android.app.Application
-import android.content.Context
-import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 
-const val USER_PREFERENCES_NAME = "user_preferences"
+private const val USER_PREFERENCES_NAME = "user_preferences"
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
-    name = USER_PREFERENCES_NAME,
-    produceMigrations = { context ->
-        // Since we're migrating from SharedPreferences, add a migration based on the
-        // SharedPreferences name
-        listOf(SharedPreferencesMigration(context, USER_PREFERENCES_NAME))
-    }
-)
-
-class TasksApplication : Application()
+class TasksApplication : Application() {
+    val dataStore by preferencesDataStore(
+        name = USER_PREFERENCES_NAME,
+        produceMigrations = { context ->
+            // Since we're migrating from SharedPreferences, add a migration based on the
+            // SharedPreferences name
+            listOf(SharedPreferencesMigration(context, USER_PREFERENCES_NAME))
+        }
+    )
+}
