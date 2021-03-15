@@ -16,56 +16,22 @@
 
 package com.codelab.android.datastore.data
 
-import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
-import androidx.datastore.dataStore
-import androidx.datastore.migrations.SharedPreferencesMigration
-import androidx.datastore.migrations.SharedPreferencesView
 import com.codelab.android.datastore.UserPreferences
 import com.codelab.android.datastore.UserPreferences.SortOrder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import java.io.IOException
 
-private const val USER_PREFERENCES_NAME = "user_preferences"
-private const val DATA_STORE_FILE_NAME = "user_prefs.pb"
-private const val SORT_ORDER_KEY = "sort_order"
-
 /**
  * Class that handles saving and retrieving user preferences
  */
-class UserPreferencesRepository(private val context: Context) {
+class UserPreferencesRepository(private val userPreferencesStore: DataStore<UserPreferences>) {
 
     private val TAG: String = "UserPreferencesRepo"
 
-    private val sharedPrefsMigration = SharedPreferencesMigration(
-        context,
-        USER_PREFERENCES_NAME
-    ) { sharedPrefs: SharedPreferencesView, currentData: UserPreferences ->
-        // Define the mapping from SharedPreferences to UserPreferences
-        if (currentData.sortOrder == SortOrder.UNSPECIFIED) {
-            currentData.toBuilder().setSortOrder(
-                SortOrder.valueOf(
-                    sharedPrefs.getString(
-                        SORT_ORDER_KEY, SortOrder.NONE.name
-                    )!!
-                )
-            ).build()
-        } else {
-            currentData
-        }
-    }
-
-
-    // Build the DataStore
-    private val Context.userPreferencesStore: DataStore<UserPreferences> by dataStore(
-        fileName = DATA_STORE_FILE_NAME,
-        serializer = UserPreferencesSerializer,
-        migrations = listOf(sharedPrefsMigration)
-    )
-
-    val userPreferencesFlow: Flow<UserPreferences> = context.userPreferencesStore.data
+    val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
         .catch { exception ->
             // dataStore.data throws an IOException when an error is encountered when reading data
             if (exception is IOException) {
@@ -82,7 +48,7 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun enableSortByDeadline(enable: Boolean) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
-        context.userPreferencesStore.updateData { currentPreferences ->
+        userPreferencesStore.updateData { currentPreferences ->
             val currentOrder = currentPreferences.sortOrder
             val newSortOrder =
                 if (enable) {
@@ -108,7 +74,7 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun enableSortByPriority(enable: Boolean) {
         // updateData handles data transactionally, ensuring that if the sort is updated at the same
         // time from another thread, we won't have conflicts
-        context.userPreferencesStore.updateData { currentPreferences ->
+        userPreferencesStore.updateData { currentPreferences ->
             val currentOrder = currentPreferences.sortOrder
             val newSortOrder =
                 if (enable) {
@@ -129,7 +95,7 @@ class UserPreferencesRepository(private val context: Context) {
     }
 
     suspend fun updateShowCompleted(completed: Boolean) {
-        context.userPreferencesStore.updateData { currentPreferences ->
+        userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder().setShowCompleted(completed).build()
         }
     }
