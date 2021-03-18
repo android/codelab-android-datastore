@@ -16,22 +16,17 @@
 
 package com.codelab.android.datastore.data
 
-import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.createDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
-
-private const val USER_PREFERENCES_NAME = "user_preferences"
 
 enum class SortOrder {
     NONE,
@@ -48,18 +43,9 @@ data class UserPreferences(
 /**
  * Class that handles saving and retrieving user preferences
  */
-class UserPreferencesRepository private constructor(context: Context) {
+class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
 
     private val TAG: String = "UserPreferencesRepo"
-
-    private val dataStore: DataStore<Preferences> =
-        context.createDataStore(
-            name = USER_PREFERENCES_NAME,
-            // Since we're migrating from SharedPreferences, add a migration based on the
-            // SharedPreferences name
-            migrations = listOf(SharedPreferencesMigration(context, USER_PREFERENCES_NAME))
-        )
-
 
     private object PreferencesKeys {
         val SORT_ORDER = stringPreferencesKey("sort_order")
@@ -153,19 +139,6 @@ class UserPreferencesRepository private constructor(context: Context) {
     suspend fun updateShowCompleted(showCompleted: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_COMPLETED] = showCompleted
-        }
-    }
-
-    companion object {
-        @Volatile
-        private var INSTANCE: UserPreferencesRepository? = null
-
-        fun getInstance(context: Context): UserPreferencesRepository {
-            return INSTANCE ?: synchronized(this) {
-                val instance = UserPreferencesRepository(context)
-                INSTANCE = instance
-                instance
-            }
         }
     }
 }
