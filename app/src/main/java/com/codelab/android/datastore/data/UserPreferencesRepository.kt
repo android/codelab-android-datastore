@@ -16,54 +16,20 @@
 
 package com.codelab.android.datastore.data
 
-import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
-import androidx.datastore.createDataStore
-import androidx.datastore.migrations.SharedPreferencesMigration
-import androidx.datastore.migrations.SharedPreferencesView
 import com.codelab.android.datastore.UserPreferences
 import com.codelab.android.datastore.UserPreferences.SortOrder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import java.io.IOException
 
-private const val USER_PREFERENCES_NAME = "user_preferences"
-private const val DATA_STORE_FILE_NAME = "user_prefs.pb"
-private const val SORT_ORDER_KEY = "sort_order"
-
 /**
  * Class that handles saving and retrieving user preferences
  */
-class UserPreferencesRepository private constructor(context: Context) {
+class UserPreferencesRepository(private val userPreferencesStore: DataStore<UserPreferences>) {
 
     private val TAG: String = "UserPreferencesRepo"
-
-    private val sharedPrefsMigration = SharedPreferencesMigration(
-        context,
-        USER_PREFERENCES_NAME
-    ) { sharedPrefs: SharedPreferencesView, currentData: UserPreferences ->
-        // Define the mapping from SharedPreferences to UserPreferences
-        if (currentData.sortOrder == SortOrder.UNSPECIFIED) {
-            currentData.toBuilder().setSortOrder(
-                SortOrder.valueOf(
-                    sharedPrefs.getString(
-                        SORT_ORDER_KEY, SortOrder.NONE.name
-                    )!!
-                )
-            ).build()
-        } else {
-            currentData
-        }
-    }
-
-
-    // Build the DataStore
-    private val userPreferencesStore: DataStore<UserPreferences> = context.createDataStore(
-        fileName = DATA_STORE_FILE_NAME,
-        serializer = UserPreferencesSerializer,
-        migrations = listOf(sharedPrefsMigration)
-    )
 
     val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
         .catch { exception ->
@@ -131,19 +97,6 @@ class UserPreferencesRepository private constructor(context: Context) {
     suspend fun updateShowCompleted(completed: Boolean) {
         userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder().setShowCompleted(completed).build()
-        }
-    }
-
-    companion object {
-        @Volatile
-        private var INSTANCE: UserPreferencesRepository? = null
-
-        fun getInstance(context: Context): UserPreferencesRepository {
-            return INSTANCE ?: synchronized(this) {
-                val instance = UserPreferencesRepository(context)
-                INSTANCE = instance
-                instance
-            }
         }
     }
 }
