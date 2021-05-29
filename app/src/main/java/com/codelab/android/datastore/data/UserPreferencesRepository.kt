@@ -91,6 +91,8 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
                 if (enable) {
                     if (currentOrder == SortOrder.BY_PRIORITY) {
                         SortOrder.BY_DEADLINE_AND_PRIORITY
+                    } else if (currentOrder == SortOrder.BY_DEADLINE_AND_PRIORITY) {
+                        return@edit
                     } else {
                         SortOrder.BY_DEADLINE
                     }
@@ -121,6 +123,8 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
                 if (enable) {
                     if (currentOrder == SortOrder.BY_DEADLINE) {
                         SortOrder.BY_DEADLINE_AND_PRIORITY
+                    } else if (currentOrder == SortOrder.BY_DEADLINE_AND_PRIORITY) {
+                        return@edit
                     } else {
                         SortOrder.BY_PRIORITY
                     }
