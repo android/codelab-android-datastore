@@ -28,6 +28,7 @@
         android:layout_height="0dp"
         android:paddingVertical="@dimen/row_item_margin_vertical"
         android:scrollbars="vertical"
+        android:clipToPadding="false"
         app:layoutManager="LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/filter"
         app:layout_constraintLeft_toLeftOf="parent"
