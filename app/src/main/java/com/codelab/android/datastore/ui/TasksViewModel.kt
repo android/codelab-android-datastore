@@ -34,7 +34,6 @@ data class TasksUiModel(
     val sortOrder: SortOrder
 )
 
-// MutableStateFlow is an experimental API so we're annotating the class accordingly
 class TasksViewModel(
     repository: TasksRepository,
     private val userPreferencesRepository: UserPreferencesRepository
