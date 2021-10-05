@@ -85,12 +85,13 @@ class TasksActivity : AppCompatActivity() {
 
         setupRecyclerView()
         setupFilterListeners(viewModel)
-        setupSort()
 
         viewModel.tasksUiModel.observe(owner = this) { tasksUiModel ->
             adapter.submitList(tasksUiModel.tasks)
             updateSort(tasksUiModel.sortOrder)
             binding.showCompletedSwitch.isChecked = tasksUiModel.showCompleted
+            // Setup change listeners after the initial emission to avoid triggering a re-emission
+            setupOnCheckedChangeListeners()
         }
     }
 
@@ -108,7 +109,7 @@ class TasksActivity : AppCompatActivity() {
         binding.list.adapter = adapter
     }
 
-    private fun setupSort() {
+    private fun setupOnCheckedChangeListeners() {
         binding.sortDeadline.setOnCheckedChangeListener { _, checked ->
             viewModel.enableSortByDeadline(checked)
         }
