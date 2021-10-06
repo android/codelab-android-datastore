@@ -50,6 +50,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="@dimen/task_details_size"
+        android:textColor="@color/greyAlpha"
+        app:drawableTint="@color/greyAlpha"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/priority"
         app:layout_constraintEnd_toEndOf="parent"
