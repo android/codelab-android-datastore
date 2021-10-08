@@ -110,11 +110,11 @@ class TasksActivity : AppCompatActivity() {
         binding.sortDeadline.setOnCheckedChangeListener { _, checked ->
             viewModel.enableSortByDeadline(checked)
         }
-        binding.sortDeadline.setOnCheckedChangeListener { _, checked ->
-            viewModel.enableSortByDeadline(checked)
-        }
         binding.sortPriority.setOnCheckedChangeListener { _, checked ->
             viewModel.enableSortByPriority(checked)
+        }
+        binding.showCompletedSwitch.setOnCheckedChangeListener { _, checked ->
+            viewModel.showCompletedTasks(checked)
         }
     }
 
