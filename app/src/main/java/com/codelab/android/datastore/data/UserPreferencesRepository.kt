@@ -20,9 +20,10 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import com.codelab.android.datastore.UserPreferences
 import com.codelab.android.datastore.UserPreferences.SortOrder
+import java.io.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import java.io.IOException
+import kotlinx.coroutines.flow.first
 
 /**
  * Class that handles saving and retrieving user preferences
@@ -99,4 +100,6 @@ class UserPreferencesRepository(private val userPreferencesStore: DataStore<User
             currentPreferences.toBuilder().setShowCompleted(completed).build()
         }
     }
+
+    suspend fun fetchInitialPreferences() = userPreferencesStore.data.first()
 }
