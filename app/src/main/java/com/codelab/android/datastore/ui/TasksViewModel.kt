@@ -19,6 +19,7 @@ package com.codelab.android.datastore.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.codelab.android.datastore.data.SortOrder
 import com.codelab.android.datastore.data.Task
@@ -34,11 +35,14 @@ data class TasksUiModel(
     val sortOrder: SortOrder
 )
 
-// MutableStateFlow is an experimental API so we're annotating the class accordingly
 class TasksViewModel(
     repository: TasksRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
+
+    val initialSetupEvent = liveData {
+        emit(userPreferencesRepository.fetchInitialPreferences())
+    }
 
     // Keep the user preferences as a stream of changes
     private val userPreferencesFlow = userPreferencesRepository.userPreferencesFlow

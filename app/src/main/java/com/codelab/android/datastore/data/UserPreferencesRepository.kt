@@ -23,10 +23,11 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import java.io.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.io.IOException
 
 enum class SortOrder {
     NONE,
@@ -65,15 +66,7 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
                 throw exception
             }
         }.map { preferences ->
-            // Get the sort order from preferences and convert it to a [SortOrder] object
-            val sortOrder =
-                SortOrder.valueOf(
-                    preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name
-                )
-
-            // Get our show completed value, defaulting to false if not set:
-            val showCompleted = preferences[PreferencesKeys.SHOW_COMPLETED] ?: false
-            UserPreferences(showCompleted, sortOrder)
+            mapUserPreferences(preferences)
         }
 
     /**
@@ -140,5 +133,21 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_COMPLETED] = showCompleted
         }
+    }
+
+    suspend fun fetchInitialPreferences() =
+        mapUserPreferences(dataStore.data.first().toPreferences())
+
+
+    private fun mapUserPreferences(preferences: Preferences): UserPreferences {
+        // Get the sort order from preferences and convert it to a [SortOrder] object
+        val sortOrder =
+            SortOrder.valueOf(
+                preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.NONE.name
+            )
+
+        // Get our show completed value, defaulting to false if not set:
+        val showCompleted = preferences[PreferencesKeys.SHOW_COMPLETED] ?: false
+        return UserPreferences(showCompleted, sortOrder)
     }
 }
