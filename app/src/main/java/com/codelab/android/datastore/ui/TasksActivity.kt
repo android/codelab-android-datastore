@@ -61,7 +61,6 @@ class TasksActivity : AppCompatActivity() {
         ).get(TasksViewModel::class.java)
 
         setupRecyclerView()
-        setupInitialPreferences()
 
         viewModel.initialSetupEvent.observe(this) { initialSetupEvent ->
             updateTaskFilters(initialSetupEvent.sortOrder, initialSetupEvent.showCompleted)
@@ -83,10 +82,6 @@ class TasksActivity : AppCompatActivity() {
         binding.list.addItemDecoration(decoration)
 
         binding.list.adapter = adapter
-    }
-
-    private fun setupInitialPreferences() {
-        viewModel.fetchInitialPreferences()
     }
 
     private fun setupOnCheckedChangeListeners() {
