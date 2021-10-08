@@ -18,7 +18,7 @@ package com.codelab.android.datastore.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.codelab.android.datastore.UserPreferences
 import com.codelab.android.datastore.UserPreferences.SortOrder
@@ -38,6 +38,10 @@ class TasksViewModel(
     repository: TasksRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
+
+    val initialSetupEvent = liveData {
+        emit(userPreferencesRepository.fetchInitialPreferences())
+    }
 
     private val userPreferencesFlow = userPreferencesRepository.userPreferencesFlow
 

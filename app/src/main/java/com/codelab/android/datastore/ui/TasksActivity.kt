@@ -24,7 +24,6 @@ import androidx.datastore.dataStore
 import androidx.datastore.migrations.SharedPreferencesMigration
 import androidx.datastore.migrations.SharedPreferencesView
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.codelab.android.datastore.UserPreferences
 import com.codelab.android.datastore.UserPreferences.SortOrder
@@ -84,20 +83,18 @@ class TasksActivity : AppCompatActivity() {
         ).get(TasksViewModel::class.java)
 
         setupRecyclerView()
-        setupFilterListeners(viewModel)
 
-        viewModel.tasksUiModel.observe(owner = this) { tasksUiModel ->
-            adapter.submitList(tasksUiModel.tasks)
-            updateSort(tasksUiModel.sortOrder)
-            binding.showCompletedSwitch.isChecked = tasksUiModel.showCompleted
-            // Setup change listeners after the initial emission to avoid triggering a re-emission
+        viewModel.initialSetupEvent.observe(this) { initialSetupEvent ->
+            updateTaskFilters(initialSetupEvent.sortOrder, initialSetupEvent.showCompleted)
             setupOnCheckedChangeListeners()
+            observePreferenceChanges()
         }
     }
 
-    private fun setupFilterListeners(viewModel: TasksViewModel) {
-        binding.showCompletedSwitch.setOnCheckedChangeListener { _, checked ->
-            viewModel.showCompletedTasks(checked)
+    private fun observePreferenceChanges() {
+        viewModel.tasksUiModel.observe(this) { tasksUiModel ->
+            adapter.submitList(tasksUiModel.tasks)
+            updateTaskFilters(tasksUiModel.sortOrder, tasksUiModel.showCompleted)
         }
     }
 
@@ -113,15 +110,21 @@ class TasksActivity : AppCompatActivity() {
         binding.sortDeadline.setOnCheckedChangeListener { _, checked ->
             viewModel.enableSortByDeadline(checked)
         }
+        binding.sortDeadline.setOnCheckedChangeListener { _, checked ->
+            viewModel.enableSortByDeadline(checked)
+        }
         binding.sortPriority.setOnCheckedChangeListener { _, checked ->
             viewModel.enableSortByPriority(checked)
         }
     }
 
-    private fun updateSort(sortOrder: SortOrder) {
-        binding.sortDeadline.isChecked =
-            sortOrder == SortOrder.BY_DEADLINE || sortOrder == SortOrder.BY_DEADLINE_AND_PRIORITY
-        binding.sortPriority.isChecked =
-            sortOrder == SortOrder.BY_PRIORITY || sortOrder == SortOrder.BY_DEADLINE_AND_PRIORITY
+    private fun updateTaskFilters(sortOrder: SortOrder, showCompleted: Boolean) {
+        with(binding) {
+            showCompletedSwitch.isChecked = showCompleted
+            sortDeadline.isChecked =
+                sortOrder == SortOrder.BY_DEADLINE || sortOrder == SortOrder.BY_DEADLINE_AND_PRIORITY
+            sortPriority.isChecked =
+                sortOrder == SortOrder.BY_PRIORITY || sortOrder == SortOrder.BY_DEADLINE_AND_PRIORITY
+        }
     }
 }
