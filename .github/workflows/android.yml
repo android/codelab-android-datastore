@@ -1,0 +1,26 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ master, preferences_datastore, proto_datastore ]
+  pull_request:
+    branches: [ master, preferences_datastore, proto_datastore ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'        
+        distribution: 'adopt'
+        cache: gradle
+
+    - name: Build with Gradle
+      run: ./gradlew build
