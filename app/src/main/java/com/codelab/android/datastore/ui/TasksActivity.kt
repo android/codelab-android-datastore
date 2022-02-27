@@ -94,7 +94,6 @@ class TasksActivity : AppCompatActivity() {
     private fun observePreferenceChanges() {
         viewModel.tasksUiModel.observe(this) { tasksUiModel ->
             adapter.submitList(tasksUiModel.tasks)
-            updateTaskFilters(tasksUiModel.sortOrder, tasksUiModel.showCompleted)
         }
     }
 
