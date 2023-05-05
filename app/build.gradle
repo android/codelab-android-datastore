@@ -46,6 +46,7 @@ android {
         jvmTarget = '17'
     }
 
+    namespace 'com.codelab.android.datastore'
     android.buildFeatures.viewBinding = true
 }
 
