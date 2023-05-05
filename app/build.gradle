@@ -25,7 +25,7 @@ android {
     defaultConfig {
         applicationId "com.codelab.android.datastore"
         minSdkVersion 16
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
 
