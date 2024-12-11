@@ -1,3 +1,6 @@
+> [!CAUTION]
+> This codelab is deprecated and will be removed soon.
+
 # DataStore codelab
 
 Supporting code for [Preferences DataStore codelab](https://codelabs.developers.google.com/codelabs/android-preferences-datastore/#0) and [Proto DataStore codelab](https://codelabs.developers.google.com/codelabs/android-proto-datastore/#0).
