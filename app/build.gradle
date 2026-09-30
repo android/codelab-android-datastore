@@ -20,12 +20,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
-
+    compileSdkVersion 34
+    namespace 'com.codelab.android.datastore'
     defaultConfig {
         applicationId "com.codelab.android.datastore"
-        minSdkVersion 16
-        targetSdkVersion 32
+        minSdkVersion 21
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
 
@@ -39,11 +39,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     android.buildFeatures.viewBinding = true
@@ -54,6 +54,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$supportLibVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
     implementation "com.google.android.material:material:$materialVersion"
+    implementation "androidx.datastore:datastore-preferences:1.1.7"
 
     // kotlin
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
