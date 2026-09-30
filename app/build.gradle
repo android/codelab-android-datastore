@@ -21,7 +21,7 @@ plugins {
 
 android {
     compileSdkVersion 34
-
+    namespace 'com.codelab.android.datastore'
     defaultConfig {
         applicationId "com.codelab.android.datastore"
         minSdkVersion 16
@@ -43,7 +43,7 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     android.buildFeatures.viewBinding = true
